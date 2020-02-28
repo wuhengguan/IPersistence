@@ -1,6 +1,6 @@
 # 第一阶段模块一作业题
 
-###1、Mybatis动态sql是做什么的？都有哪些动态sql？简述一下动态sql的执行原理？
+### 1、Mybatis动态sql是做什么的？都有哪些动态sql？简述一下动态sql的执行原理？
     （1）mysql动态sql是为了解决根据不同条件拼接sql的问题，动态sql包括条件判断if，循环遍历choose (when, otherwise)和foreach，另外还有trim (where, set)做些防止生成不规范的sql
     （2）执行原理：
         sql语句的存储结构：
@@ -32,7 +32,7 @@
         每个子节点根据自己不同的解析策略解析完sql，拼接成最终sql
         
         
-###2、Mybatis是否支持延迟加载？如果支持，它的实现原理是什么？
+### 2、Mybatis是否支持延迟加载？如果支持，它的实现原理是什么？
     
     mybatis是支持延时加载的，在配置文件lazyLoadingEnabled=true开启，另一个配置aggressiveLazyLoading（当开启时，任何方法的调用都会加载该对象的所有属性。否则，每个属性会按需加载）
     
@@ -71,7 +71,7 @@
                         -> ResultLoader.selectList()
                             -- 查询完成进行提取结果
                             -> ResultLoader.extractObjectFromList()
-###3、Mybatis都有哪些Executor执行器？它们之间的区别是什么？
+### 3、Mybatis都有哪些Executor执行器？它们之间的区别是什么？
     mybatis的Executor使用了模板模式，主要有以下几种：
     BaseExecutor：
         该类主要使用了模板模式，把Executor的共性封装在其中，特性化的内容由其子类实现
@@ -84,7 +84,7 @@
     CachingExecutor：
         这个类并没有基础BaseExecutor基础类，而是采用了一个装饰器模式，主要作用是实现了二级缓存，当全局开启了二级缓存时会使用该Executor
     
-###4、简述下Mybatis的一级、二级缓存（分别从存储结构、范围、失效场景。三个方面来作答）？
+### 4、简述下Mybatis的一级、二级缓存（分别从存储结构、范围、失效场景。三个方面来作答）？
     一级缓存：
         一级缓存是SqlSession级别的缓存，只在会话中有效，使用一个HashMap存储了查询数据，
         当同一个会话下次执行同样的查询会先从缓存中查询，如果缓存中没有才会从数据库中查询，
@@ -100,7 +100,7 @@
         还支持用户自定义实现Cache接口然后再mapper xml文件中指定<cache type="">指定自定义的Cache
         mybatis的二级缓存也有丰富的第三方库，比如mybatis-redis，就是使用第三方缓存数据库实现分布式的缓存
         
-###5、简述Mybatis的插件运行原理，以及如何编写一个插件？
+### 5、简述Mybatis的插件运行原理，以及如何编写一个插件？
     （1）mybatis的插件主要是对四大组件（Executor，StatementHandler，ParameterHandler，ResultSetHandler）进行代理扩展，
     mybatis在创建四大对象的时候，并不是直接返回的，而是通过interceptorChain.pluginAll(xx)来返回代理的对象。
     在pluginAll()方法中获取了所有的Interceptor进行代理，然后返回最终包装的对象
@@ -115,8 +115,8 @@
         另外还要再配置文件中的<plugins>标签钟注册插件
     
     
-二、编程题
+## 二、编程题
 
-请完善自定义持久层框架IPersistence，在现有代码基础上添加、修改及删除功能。【需要采用getMapper方式】
+### 请完善自定义持久层框架IPersistence，在现有代码基础上添加、修改及删除功能。【需要采用getMapper方式】
    已完善，可修改数据库配置后执行IPersistenceTest的测试方法
    
