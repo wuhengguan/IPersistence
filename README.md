@@ -7,6 +7,30 @@
         SqlNode接口，每个xml node都会解析成对应的sqlNode，比如有：if标签对应的IfSqlNode，choose标签对应的ChooseSqlNode，foreach标签对应的ForeachSqlNode等
         SqlSource来源接口，它代表从Mapper XML或方法注解上，读取的一条SQL内容，其实现类有：动态sql类DynamicSqlSource，基于方法上的 @ProviderXXX 注解的 SqlSource实现类ProviderSqlSource等
         BoundSql类，一次可执行的SQL封装
+        XMLScriptBuilder类，是负责解析各个节点sql部分，比如select,insert,update,delete节点
+        NodeHandler接口，是XMLScriptBuilder的内部接口，其中包括IfHandler,ChooseHandler,TrimHandler,WhereHandler,SetHandler等处理器，负责对不同动态sql标签的解析
+        
+        解析的过程：
+        -- 负责把配置的Sql解析成为SqlSource，如果是动态sql则返回DynamicSqlSource
+        XMLScriptBuilder.parseScriptNode()
+            -- 具体的解析过程，把sql解析为MixedSqlNode，如果类型是Node.CDATA_SECTION_NODE 或者 Node.TEXT_NODE 时解析为TextSqlNode
+            -- 如果是Node.ELEMENT_NODE元素类型，则根据子标签类型获得对应的NodeHandler，并且标记sql为动态sql
+            -> XMLScriptBuilder.parseDynamicTags()
+        
+        当根据参数获取BoundSql时：
+        -- 根据传入的参数构建BoundSql
+        DynamicSqlSource.getBoundSql(Object parameterObject)
+            -- 把configuration和parameter封装成DynamicContext传入sql根节点apply方法开始解析 , 
+            -- 而rootSqlNode是一个MixedSqlNode，会便利调用内部各个SqlNode的apply方法把sql拼接到DynamicContenx中
+            -> rootSqlNode.apply(DynamicContext)
+            -- 解析完动态sql后，进行参数解析，也就是对参数占位符进行替换
+            --> SqlSourceBuilder.parse(context.getSql(), parameterType, context.getBindings())
+            -- 参数和sql都解析完后则构建BoundSql返回使用即可
+              
+        动态sql的解析主要是根据不同的节点类型使用不同的解析策略，把xml配置的sql解析成多个SqlNode组成的数据结构，根节点是一个MixedSqlNode，
+        根节点包含所有的子节点的，而子节点又是根据不同的类型，实现了不同的解析，当调用根节点的MixedSqlNode的apply方法，会循环执行所有子节点的apply方法，
+        每个子节点根据自己不同的解析策略解析完sql，拼接成最终sql
+        
         
 ###2、Mybatis是否支持延迟加载？如果支持，它的实现原理是什么？
     
@@ -94,3 +118,5 @@
 二、编程题
 
 请完善自定义持久层框架IPersistence，在现有代码基础上添加、修改及删除功能。【需要采用getMapper方式】
+   已完善，可修改数据库配置后执行IPersistenceTest的测试方法
+   
