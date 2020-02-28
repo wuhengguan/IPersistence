@@ -62,11 +62,35 @@
     
 ###4、简述下Mybatis的一级、二级缓存（分别从存储结构、范围、失效场景。三个方面来作答）？
     一级缓存：
-        一级缓存是SqlSession级别的缓存，只在会话中有效，使用一个HashMap存储了查询数据，当同一个会话下次执行同样的查询会先从缓存中查询，如果缓存中没有才会从数据库中查询，并缓存到这个HashMap中，当添加修改删除这些操作执行时会清空一级缓存
+        一级缓存是SqlSession级别的缓存，只在会话中有效，使用一个HashMap存储了查询数据，
+        当同一个会话下次执行同样的查询会先从缓存中查询，如果缓存中没有才会从数据库中查询，
+        并缓存到这个HashMap中，当添加修改删除这些操作执行时会清空一级缓存
     二级缓存：
-        二级缓存是基于mapper的namespace的，是不同SqlSession可以共享的缓存，开启二级缓存后使用的是CachingExecutor，在查询的时候会从二级缓存中获取结果，二级缓存也是使用HashMap结构，
+        二级缓存是基于mapper的namespace的，是不同SqlSession可以共享的缓存，
+        开启二级缓存后使用的是CachingExecutor，在查询的时候会从二级缓存中获取结果，
+        二级缓存也是使用HashMap结构，一个mapper对应一个具体的map中的值，
+        而这个对应的值底层又是一个map，这个map的key是当前mapper中的查询语句，
+        存储的是具体语句的查询结果。
+        二级缓存的设计非常灵活，它自己内部实现了一系列的Cache缓存实现类，
+        并提供了各种缓存刷新策略如LRU，FIFO等等，
+        还支持用户自定义实现Cache接口然后再mapper xml文件中指定<cache type="">指定自定义的Cache
+        mybatis的二级缓存也有丰富的第三方库，比如mybatis-redis，就是使用第三方缓存数据库实现分布式的缓存
+        
 ###5、简述Mybatis的插件运行原理，以及如何编写一个插件？
-
+    （1）mybatis的插件主要是对四大组件（Executor，StatementHandler，ParameterHandler，ResultSetHandler）进行代理扩展，
+    mybatis在创建四大对象的时候，并不是直接返回的，而是通过interceptorChain.pluginAll(xx)来返回代理的对象。
+    在pluginAll()方法中获取了所有的Interceptor进行代理，然后返回最终包装的对象
+    在Interceptor中可以对四大组件的各种方法进行拦截做相应的处理，如分页等
+    （2）编写插件流程：
+        需要实现Integerceptor接口，然后通过注解@Intercepts注解，指定一个或多个@Signature注解
+        每个@Signature注解声明了拦截四大组件中哪个组件以及组件具体的方法和参数，
+        实现Interceptor接口的intercept方法，改方法为拦截的方法，具体的增强逻辑在此编写
+        实现Interceptor接口的plugin方法，创建目标对象的代理对象
+        实现Interceptor接口的setProperties方法，设置拦截器属性
+        
+        另外还要再配置文件中的<plugins>标签钟注册插件
+    
+    
 二、编程题
 
 请完善自定义持久层框架IPersistence，在现有代码基础上添加、修改及删除功能。【需要采用getMapper方式】
